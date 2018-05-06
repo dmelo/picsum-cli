@@ -1,0 +1,32 @@
+#!/bin/bash
+
+function usage()
+{
+    echo "Usage: picsum  WIDTH HEIGHT"
+    echo "picsum is a client of the picsum.photos API (http://picsum.photos/)"
+    echo "Get a random image from picsum and save it as WIDTHxHEIGHTxID.jpg"
+    echo
+    echo "    WIDTH - positive integer that represents the width of the image"
+    echo "    HEIGHT - positive integer that represents the height of the image"
+
+}
+
+BASE_URL="https://picsum.photos"
+
+if [ $# -ne 2 ]
+then
+    usage
+    exit 1
+fi
+
+WIDTH=$1
+HEIGHT=$2
+
+URI=$(curl --silent -I $BASE_URL/$WIDTH/$HEIGHT/?random  | grep -e "^Location: " | sed 's/^Location: //g')
+IMG=$(echo $URI | sed 's/.*=//g' | sed 's/[^0-9]//g')
+URL="https://picsum.photos/$WIDTH/$HEIGHT/?image=$IMG"
+FILENAME="${WIDTH}_${HEIGHT}_${IMG}.jpg"
+
+curl --silent "$URL" --output $FILENAME
+
+echo $FILENAME
